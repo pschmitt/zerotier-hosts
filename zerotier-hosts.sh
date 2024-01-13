@@ -8,6 +8,7 @@ usage() {
   echo "  -h, --help      Show this help"
   echo "  -n, --network   Network name to use (default: the first network)"
   echo "  -o, --output    Output file (default: stdout)"
+  echo "  -r, --reload    Reload dnsmasq (SIGHUP) after generating zone file"
   echo "  -s, --suffix    Suffix to append to hostnames (default: zt)"
   echo "  -t, --token     API token to use (default: read from $PWD/token)"
 }
@@ -101,6 +102,7 @@ then
   ZEROTIER_API_HOST="${ZEROTIER_API_HOST:-}"
   ZEROTIER_NETWORK_NAME="${ZEROTIER_NETWORK_NAME:-}"
   SUFFIX="${SUFFIX:-zt}"
+  DNSMASQ_RELOAD="${DNSMASQ_RELOAD:-}"
 
   while [[ -n "$*" ]]
   do
@@ -120,6 +122,10 @@ then
       -o|--output)
         OUTPUT="$2"
         shift 2
+        ;;
+      -r|--reload)
+        DNSMASQ_RELOAD="1"
+        shift
         ;;
       -s|--suffix)
         SUFFIX="$2"
@@ -157,5 +163,10 @@ then
     echo "$ZONEFILE" > "$OUTPUT"
   else
     echo "$ZONEFILE"
+  fi
+
+  if [[ -n "$DNSMASQ_RELOAD" ]]
+  then
+    killall -HUP dnsmasq
   fi
 fi
