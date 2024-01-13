@@ -12,9 +12,20 @@ usage() {
   echo "  -t, --token     API token to use (default: read from $PWD/token)"
 }
 
+zt_token() {
+  if [[ -n "$ZEROTIER_API_TOKEN" ]]
+  then
+    echo "$ZEROTIER_API_TOKEN"
+    return 0
+  fi
+
+  cat "$(cd "$(dirname "$0")" >/dev/null 2>&1; pwd -P)/token" || return 1
+}
+
 zt_api() {
   local api_host=${ZEROTIER_API_ENDPOINT:-https://api.zerotier.com/api/v1}
-  local token=${ZEROTIER_API_TOKEN:-$(head -1 "$PWD/token")}
+  local token
+  token="$(zt_token)"
 
   if [[ -z "$token" ]]
   then
